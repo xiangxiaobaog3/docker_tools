@@ -1,17 +1,18 @@
 # -*- coding:utf-8 -*-
 import docker
+import datetime
 
 client = docker.APIClient(base_url='unix://var/run/docker.sock', version='1.21', timeout=5)
-# print(client.version())
 
 
 # TODO 去掉images[key]列表
 """获取全部镜像"""
 
+
 # 处理value值
 def deal_value(value):
     if type(value) == list:
-        return value[0]
+        return value[0].split()[0].replace('/', '')
     if type(value) == dict:
         for key in value:
             return value[key]
@@ -21,6 +22,27 @@ def deal_value(value):
         return value
 
 
+# 日期格式化
+def docker_date():
+    date = str(datetime.datetime.now())
+    date_split = int(date.split()[0].replace('-', ''))
+    return date_split
+
+
+# # 通过容器名获取容器ID
+# def get_container_id(containername):
+#     for containers in client.containers():
+#         for key in containers:
+#             print(containers[key])
+#             if deal_value(containers[key]) == containername:
+#                 print(key)
+#         # print(containers_dict)
+#
+#
+# get_container_id("sitech-ecommerce-cart-api")
+
+
+# 获取所有镜像信息
 def get_all_image_info():
     for images in client.images():
         images_dict = {}
@@ -32,6 +54,7 @@ def get_all_image_info():
         print(images_dict)
 
 
+# 获取容器信息
 def get_all_container_info():
     for containers in client.containers():
         containers_dict = {}
@@ -47,6 +70,10 @@ def get_all_container_info():
 
         print(containers_dict)
 
-print(client.logs(container="d3eab940e020",tail=15).decode('utf-8'))
-# get_all_container_info()
+get_all_container_info()
+# 获取容器日志
+def get_container_logs(containerid, tail, since=docker_date()):
+    container_logs = client.logs(container=containerid, tail=tail, since=since).decode('utf-8')
+    return container_logs
 
+# print(get_container_logs("d3eab940e020", 3000))
