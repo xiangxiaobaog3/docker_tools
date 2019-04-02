@@ -29,17 +29,21 @@ def docker_date():
     return date_split
 
 
-# # 通过容器名获取容器ID
-# def get_container_id(containername):
-#     for containers in client.containers():
-#         for key in containers:
-#             print(containers[key])
-#             if deal_value(containers[key]) == containername:
-#                 print(key)
-#         # print(containers_dict)
-#
-#
-# get_container_id("sitech-ecommerce-cart-api")
+# 通过容器名获取容器ID
+def get_container_id(containername):
+
+    # 处理参数
+    str = "/"
+    test_str = str + containername
+    str_list = []
+    str_list.append(test_str)
+
+    for containers in client.containers():
+        containers_dict = {}
+        for key in containers:
+            if key == "Names":
+                if containers[key] == str_list:
+                    return deal_value(containers['Id'])
 
 
 # 获取所有镜像信息
@@ -70,10 +74,9 @@ def get_all_container_info():
 
         print(containers_dict)
 
-get_all_container_info()
+
 # 获取容器日志
-def get_container_logs(containerid, tail, since=docker_date()):
+def get_container_logs(containername, tail=300, since=docker_date()):
+    containerid = get_container_id(containername)
     container_logs = client.logs(container=containerid, tail=tail, since=since).decode('utf-8')
     return container_logs
-
-# print(get_container_logs("d3eab940e020", 3000))
